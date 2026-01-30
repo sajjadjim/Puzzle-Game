@@ -11,18 +11,23 @@
 
 * {
     box-sizing: border-box;
+    /* Prevent text selection while playing */
     user-select: none;
+    -webkit-user-select: none;
+    /* Prevent tap highlighting on mobile */
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     font-family: 'Inter', system-ui, sans-serif;
     background-color: var(--bg-wood);
-    /* Subtle wood grain pattern using CSS gradients */
     background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 2px, transparent 2px, transparent 8px),
         linear-gradient(to bottom, #2c241b, #1a1510);
     color: var(--text-main);
     margin: 0;
     height: 100vh;
+    /* Fix for mobile browser address bars resizing the viewport */
+    height: 100dvh; 
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -39,6 +44,8 @@ body {
     backdrop-filter: blur(10px);
     z-index: 20;
     box-shadow: var(--shadow-soft);
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    gap: 10px;
 }
 
 .brand {
@@ -50,6 +57,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    white-space: nowrap;
 }
 
 .stats-container {
@@ -68,6 +76,7 @@ body {
 .controls {
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
 /* --- Buttons --- */
@@ -82,7 +91,10 @@ body {
     transition: all 0.2s;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    /* Better touch targets */
+    min-height: 36px;
 }
 
 .btn:hover {
@@ -101,10 +113,6 @@ body {
     border: none;
 }
 
-.btn-primary:hover {
-    background: #3db5db;
-}
-
 input[type="file"] {
     display: none;
 }
@@ -115,6 +123,8 @@ input[type="file"] {
     flex: 1;
     overflow: hidden;
     position: relative;
+    /* Default: Desktop (Row) */
+    flex-direction: row; 
 }
 
 /* Sidebar for pieces */
@@ -125,11 +135,11 @@ input[type="file"] {
     display: flex;
     flex-direction: column;
     z-index: 10;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .sidebar-header {
-    padding: 15px;
+    padding: 10px;
     text-align: center;
     font-size: 0.8rem;
     color: var(--text-muted);
@@ -141,6 +151,7 @@ input[type="file"] {
     flex: 1;
     padding: 15px;
     overflow-y: auto;
+    /* Default: Grid for Desktop side-panel */
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -150,12 +161,9 @@ input[type="file"] {
 /* Custom Scrollbar */
 #piece-pool::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
 }
-
-#piece-pool::-webkit-scrollbar-track {
-    background: transparent;
-}
-
+#piece-pool::-webkit-scrollbar-track { background: transparent; }
 #piece-pool::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
@@ -170,14 +178,16 @@ input[type="file"] {
     justify-content: center;
     align-items: center;
     box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+    background: rgba(0,0,0,0.1);
 }
 
 #game-board {
     position: relative;
-    /* The actual board size will be set by JS */
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
+    /* Important for touch */
+    touch-action: none; 
 }
 
 canvas#guide-image {
@@ -192,7 +202,6 @@ canvas#guide-image {
 /* --- Puzzle Piece Styles --- */
 .puzzle-piece {
     position: absolute;
-    /* Filter drop-shadow allows shadow to follow the complex shape */
     filter: drop-shadow(2px 3px 2px rgba(0, 0, 0, 0.4));
     cursor: grab;
     transition: transform 0.1s, filter 0.2s;
@@ -204,9 +213,12 @@ canvas#guide-image {
     position: relative !important;
     left: auto !important;
     top: auto !important;
-    transform: scale(0.7) !important;
+    transform: scale(0.8) !important; /* Slightly smaller in pool */
     margin: auto;
-    cursor: pointer;
+    cursor: grab;
+    /* Ensure pieces don't overflow their grid cells */
+    max-width: 100%; 
+    max-height: 100%;
 }
 
 .puzzle-piece:active {
@@ -220,11 +232,10 @@ canvas#guide-image {
     pointer-events: none;
     z-index: 1;
     filter: none;
-    /* Remove shadow once flat on board */
     transition: all 0.3s ease;
 }
 
-/* --- Overlays --- */
+/* --- Overlays & Modals --- */
 .overlay {
     position: fixed;
     inset: 0;
@@ -247,25 +258,19 @@ canvas#guide-image {
 
 .modal-card {
     background: var(--panel-bg);
-    padding: 3rem;
+    padding: 2rem;
+    margin: 1rem;
     border-radius: 1rem;
     border: var(--border-glass);
     text-align: center;
     max-width: 400px;
+    width: 90%;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     transform: translateY(20px);
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.overlay.active .modal-card {
-    transform: translateY(0);
-}
-
-h2 {
-    margin-top: 0;
-    color: var(--accent);
-    font-size: 2rem;
-}
+.overlay.active .modal-card { transform: translateY(0); }
 
 .progress-bar {
     position: absolute;
@@ -277,7 +282,6 @@ h2 {
     transition: width 0.3s;
 }
 
-/* Confetti Canvas */
 #confetti-canvas {
     position: fixed;
     top: 0;
@@ -286,27 +290,113 @@ h2 {
     z-index: 999;
 }
 
-/* Fix for the Dropdown Menu Visibility */
-select option {
-    background-color: var(--panel-bg);
-    /* Dark background for options */
-    color: var(--text-main);
-    /* White text */
-}
-
-/* Ensure the select element itself looks good */
 select {
     background-color: rgba(255, 255, 255, 0.05);
-    /* Semi-transparent dark */
     color: var(--text-main);
     border: var(--border-glass);
     padding: 8px;
     border-radius: 6px;
 }
 
-/* Optional: Fix for Chrome/Edge dark mode overrides */
-select:focus {
+select option {
     background-color: #1e1e28;
-    /* Solid dark color when open */
-    outline: 2px solid var(--accent);
+    color: var(--text-main);
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (The New Updates)
+   ========================================= */
+
+/* Tablets (Portrait) & Mobile Landscape */
+@media (max-width: 1024px) {
+    .hud {
+        padding: 0.5rem 1rem;
+    }
+    
+    .game-layout {
+        flex-direction: column; /* Stack vertically */
+    }
+
+    /* Move Board to visual top, Sidebar to bottom */
+    .board-wrapper {
+        order: 1; 
+        flex: 1;
+    }
+
+    .sidebar {
+        order: 2;
+        width: 100%; /* Full width */
+        height: 140px; /* Fixed height for bottom tray */
+        border-right: none;
+        border-top: var(--border-glass);
+        flex-direction: row; /* Horizontal header + content */
+    }
+
+    .sidebar-header {
+        writing-mode: vertical-rl; /* Vertical text label */
+        text-orientation: mixed;
+        padding: 5px;
+        border-bottom: none;
+        border-right: var(--border-glass);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+    }
+
+    #piece-pool {
+        /* Horizontal Scroll Strip */
+        display: flex;
+        flex-direction: row;
+        grid-template-columns: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        align-items: center;
+        padding: 10px;
+    }
+    
+    .puzzle-piece.in-pool {
+        margin: 0 10px;
+        flex-shrink: 0; /* Don't squash pieces */
+    }
+}
+
+/* Mobile Phones (Portrait) */
+@media (max-width: 600px) {
+    .hud {
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .brand {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 5px;
+    }
+
+    .stats-container {
+        width: 100%;
+        justify-content: space-around;
+        font-size: 0.8rem;
+    }
+
+    .controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .controls .btn {
+        flex: 1; /* Make buttons fill width equally */
+        font-size: 0.75rem;
+        padding: 6px;
+    }
+    
+    #difficulty {
+        max-width: 100px;
+    }
+
+    /* Make the tray slightly smaller on phones */
+    .sidebar {
+        height: 120px; 
+    }
 }
