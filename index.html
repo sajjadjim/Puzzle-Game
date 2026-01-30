@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Puzzle Suite</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="hud">
+        <div class="brand">
+            <span>🧩</span> PuzzlePro
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-item">Time: <b id="timer">00:00</b></div>
+            <div class="stat-item">Moves: <b id="move-count">0</b></div>
+            <div class="stat-item">Progress: <b id="progress-pct">0%</b></div>
+        </div>
+
+        <div class="controls">
+            <select id="difficulty" class="btn">
+                <option value="3">Easy (3x3)</option>
+                <option value="5" selected>Medium (5x5)</option>
+                <option value="8">Hard (8x8)</option>
+                <option value="12">Expert (12x12)</option>
+            </select>
+            <label class="btn btn-primary">
+                Upload Photo
+                <input type="file" id="img-upload" accept="image/*">
+            </label>
+            <button class="btn" id="btn-guide">Guide</button>
+            <button class="btn" id="btn-shuffle">Reset</button>
+        </div>
+        <div class="progress-bar" id="top-progress"></div>
+    </header>
+
+    <div class="game-layout">
+        <div class="sidebar">
+            <div class="sidebar-header">Piece Tray</div>
+            <div id="piece-pool">
+                </div>
+        </div>
+        
+        <div class="board-wrapper" id="board-wrapper">
+            <div id="game-board">
+                <canvas id="guide-image"></canvas>
+                </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="win-modal">
+        <div class="modal-card">
+            <h2>🎉 Fantastic!</h2>
+            <p id="final-stats">You solved it in 00:00.</p>
+            <div style="margin-top: 20px; display:flex; gap:10px; justify-content:center;">
+                <button class="btn btn-primary" onclick="initGame()">Play Again</button>
+                <button class="btn" onclick="document.getElementById('win-modal').classList.remove('active')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
